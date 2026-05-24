@@ -1,0 +1,725 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <memory>
+#include <limits>
+
+using namespace std;
+
+#define RED     "\033[31m"
+#define CYAN    "\033[36m"
+#define GREEN   "\033[32m"
+#define RESET   "\033[0m"
+#define YELLOW  "\033[33m"
+#define MAGENTA "\033[35m"
+
+
+void displayTitleArt() {
+    cout << CYAN << R"(
+ __        __   _                                        
+ \ \      / /__| | ___ ___  _ __ ___   ___  
+  \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \ 
+   \ V  V /  __/ | (_| (_) | | | | | |  __/  
+    \_/\_/ \___|_|\___\___/|_| |_| |_|\___| 
+      
+  ---    TO THE CURSED KINGDOM   ---
+
+    )" << RESET << "\n";
+}
+
+void displayGoblinArt() {
+    cout << YELLOW << R"(
+     ,     ,
+    (\__/)
+     (oo)
+      (O)
+    _||_     \)
+  []/__\[] /
+  / \__/ \/
+ /    /__\
+(\  /__\     A Wild Goblin Appears!
+)" << RESET << "\n";
+}
+
+void displayOrcArt() {
+    cout << MAGENTA << R"(
+      _____
+     /     \
+    |  O O  |
+    |   |   |
+    |  \_/  |
+    |       |
+    |  \_/  |
+   _|_______|_    A Wild Orc Appears!
+)" << RESET << "\n";
+}
+
+void displayCursedKingArt() {
+    cout << RED << R"(
+     _______
+    /       \
+   |  X   X  |
+   |    -    |
+   |  \_/    |
+    \_______/
+    A Wild Cursed King Appears!
+)" << RESET << "\n";
+}
+
+void displayAttackMessage(string playerName, string enemyName) {
+    cout << RED << R"(
+     ,    ,                _     _
+    /|\  /|\             __| |   | |__
+   / \ \/ \ \           /  | |   |  |  \
+  /   \  /   \         |  o  o  | |  o  |
+ /__\_\___|___||_|____ |  ___  |  | ___|
+
+)" << playerName << " attacks " << enemyName << "!" << RESET << "\n";
+}
+
+void displayGameOverArt() {
+    cout << RED << R"(
+  _____                         ____                 
+  / ____|                       / __ \                
+ | |  __  __ _ _ __ ___   ___  | |  | |_   _____ _ __ 
+ | | |_ |/ _` | '_ ` _ \ / _ \ | |  | \ \ / / _ \ '__|
+ | |__| | (_| | | | | | |  __/ | |__| |\ V /  __/ |   
+  \_____|\__,_|_| |_| |_|\___|  \____/  \_/ \___|_|    
+
+                  SEE YOU AGAIN <3
+)" << RESET << "\n";
+}
+
+void displayWinArt() {
+    cout << GREEN << R"(
+  #   #   ###   #   #
+  #   #    #    ##  #
+  # # #    #    # # #
+  ## ##    #    #  ##
+  #   #   ###   #   #
+)" << RESET << "\n";
+}
+
+void displayMysticSwordArt() {
+    cout << CYAN << R"(
+     /\
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+   /____\
+   \====/
+)" << RESET << "\n";
+}
+
+void displayHealingPotionArt() {
+    cout << GREEN << R"(
+     ____
+    |    |
+    |~~~~|
+    |    |
+    |____|
+    /____\
+   (______)
+)" << RESET << "\n";
+}
+
+void displayArmorArt() {
+    cout << YELLOW << R"(
+     __
+    |==|
+    |  |
+    |  |
+    |__|
+    /||\
+   //||\\
+  // || \\
+)" << RESET << "\n";
+}
+
+void displayExperimentArt() {
+    cout << MAGENTA << R"(
+    (o_o)
+    <)  )
+    /  \
+)" << RESET << "\n";
+}
+
+
+void displayRulebook() {
+    system("cls");
+
+    // 1. Setting Up the Fight
+    cout << "\033[1;33m1. Setting Up the Fight\033[0m\n";
+    cout << "You will face 3 enemies: Goblin, Orc, and Cursed King.\n";
+    cout << "You get \033[1;36m2 tries\033[0m to defeat each enemy.\n\n";
+
+    // 2. Turn and Try Structure
+    cout << "\033[1;33m2. Turn and Try Structure\033[0m\n";
+    cout << "Each try has \033[1;36m3 turns\033[0m.\n";
+    cout << "In each turn, you choose one action: \033[1;32mAttack\033[0m or \033[1;36mDefend\033[0m.\n\n";
+
+    // 3. Actions Explained
+    cout << "\033[1;33m3. Actions Explained\033[0m\n";
+    cout << "\033[1;32mAttack:\033[0m You deal damage to the enemy by entering a number between 10 and 50.\n";
+    cout << "Your damage from all 3 turns is added up.\n";
+    cout << "\033[1;36mDefend:\033[0m The enemy attacks you. You can:\n";
+    cout << "- Use healing (0 to 50) to recover health.\n";
+    cout << "- Wear armor: Helmet, Jacket, or Both for protection.\n";
+    cout << "Wearing both gives full protection.\n";
+    cout << "Wrong choices in defense mean more damage.\n\n";
+
+    // 4. Winning or Losing Conditions
+    cout << "\033[1;33m4. Winning or Losing Conditions\033[0m\n";
+    cout << "After 3 turns, if your total attack is \033[1;32m90 or more\033[0m:\n";
+    cout << "- Wearing \033[1;36mboth\033[0m armor = You win and survive.\n";
+    cout << "- Wearing \033[1;36mone\033[0m armor = You win but still lose your life.\n";
+    cout << "- Wearing \033[1;36mnone\033[0m = You win, but are vulnerable.\n";
+    cout << "If attack is less than 90:\n";
+    cout << "- Healing \033[1;32m50 or more\033[0m = You get another try.\n";
+    cout << "- Healing less than 50 = You lose.\n";
+    cout << "After 2 failed tries, you lose the fight.\n\n";
+
+    // 5. Player Strategy
+    cout << "\033[1;33m5. Player’s Strategy\033[0m\n";
+    cout << "You have 3 turns per try and 2 tries per enemy.\n";
+    cout << "To win, you should:\n";
+    cout << "- Do enough total damage (90 or more), OR\n";
+    cout << "- Heal well (50 or more) if damage is low.\n";
+    cout << "- Wear both armor pieces to survive.\n";
+    cout << "Balance attack, defense, and healing to win.\n\n";
+
+    // Summary
+    cout << "\033[1;33mSummary:\033[0m\n";
+    cout << "You fight 3 enemies, each with up to 2 tries.\n";
+    cout << "Each try has 3 turns where you attack or defend.\n";
+    cout << "Attack adds damage, defense lets you heal or wear armor.\n";
+    cout << "To win: Reach 90+ damage or heal 50+ to retry.\n";
+    cout << "Wearing both armor pieces protects you completely.\n\n";
+
+    system("pause");
+}
+
+
+class User {
+private:
+    string username, password;
+
+public:
+    bool signup() {
+        cout << CYAN << "Sign Up\n" << RESET;
+        cout << YELLOW << "Enter username: " << RESET;
+        getline(cin, username);
+        cout << YELLOW << "Enter password: " << RESET;
+        cin >> password;
+
+        if (username.empty() || password.empty()) {
+            cout << RED << "Username or Password cannot be empty!\n" << RESET;
+            return false;
+        }
+
+        ifstream checkFile(username + ".txt");
+        if (checkFile.is_open()) {
+            cout << RED << "Username already exists! Try logging in.\n" << RESET;
+            checkFile.close();
+            return false;
+        }
+
+        ofstream file(username + ".txt");
+        if (!file.is_open()) {
+            cout << RED << "Error: Failed to create the file!\n" << RESET;
+            return false;
+        }
+
+        file << username << "\n" << password << "\n";
+        file.close();
+        cout << GREEN << "****Signup successful!****\n" << RESET;
+        return true;
+    }
+
+    bool login() {
+        cout << CYAN << "Login\n" << RESET;
+        cout << YELLOW << "---Enter username---: " << RESET;
+        cin >> username;
+        cout << YELLOW << "---Enter password:--- " << RESET;
+        cin >> password;
+
+        ifstream file(username + ".txt");
+        string storedUser, storedPass;
+        if (file.is_open()) {
+            getline(file, storedUser);
+            getline(file, storedPass);
+            file.close();
+            if (storedUser == username && storedPass == password) {
+                cout << GREEN << "Login successful!\n" << RESET;
+                return true;
+            }
+        }
+
+        cout << RED << "Invalid username or password.\n" << RESET;
+        return false;
+    }
+
+    string getUsername() { return username; }
+};
+
+class Character {
+protected:
+    string name;
+    int health;
+
+public:
+    Character(string n, int h) : name(n), health(h) {}
+    virtual void attack(Character& target) = 0;
+    virtual void displayStatus() {
+        cout << name << " [HP: " << health << "]\n";
+    }
+
+    bool isAlive() { return health > 0; }
+    void takeDamage(int dmg) {
+        health -= dmg;
+        if (health < 0) health = 0;
+    }
+
+    string getName() { return name; }
+};
+
+class Player : public Character {
+private:
+    int xp, gold;
+
+public:
+    Player(string n) : Character(n, 100), xp(0), gold(0) {}
+
+    void attack(Character& target) override {
+        displayAttackMessage(name, target.getName());
+        int damage = 20 + (xp / 10);
+        target.takeDamage(damage);
+        cout << target.getName() << " takes " << damage << " damage!\n";
+    }
+
+    void earnRewards() {
+        xp += 10;
+        gold += 20;
+        cout << name << " earned 10 XP and 20 Gold!\n";
+    }
+
+    void displayStatus() override {
+        Character::displayStatus();
+        cout << "XP: " << xp << ", Gold: " << gold << endl;
+    }
+};
+
+class Enemy : public Character {
+public:
+    Enemy(string n, int h) : Character(n, h) {}
+
+    void attack(Character& target) override {
+        cout << name << " strikes " << target.getName() << "!\n";
+        int damage = 10;
+        target.takeDamage(damage);
+        cout << target.getName() << " takes " << damage << " damage!\n";
+    }
+};
+
+class Boss : public Enemy {
+public:
+    Boss(string n) : Enemy(n, 150) {}
+
+    void attack(Character& target) override {
+        cout << name << " uses a devastating attack on " << target.getName() << "!\n";
+        target.takeDamage(25);
+    }
+};
+
+class Item {
+private:
+    string itemName;
+
+public:
+    Item(string n) : itemName(n) {}
+    string getName() { return itemName; }
+};
+
+class Inventory {
+private:
+    vector<Item> items;
+
+public:
+    void addItem(Item item) {
+        items.push_back(item);
+        cout << item.getName() << " added to inventory.\n";
+    }
+
+    void showItems() {
+        if (items.empty()) {
+            cout << "Inventory is empty.\n";
+            return;
+        }
+
+        cout << "Inventory:\n";
+        for (auto& item : items) {
+            cout << "- " << item.getName() << endl;
+        }
+    }
+};
+
+class GameManager {
+private:
+    Player* player;
+    Inventory inventory;
+
+public:
+    GameManager(Player* p) : player(p) {}
+
+    void startStoryMode() {
+        cout << "\n--- Story Mode ---\n";
+
+        vector<unique_ptr<Enemy>> enemies;
+        enemies.push_back(make_unique<Enemy>("Goblin", 30));
+        enemies.push_back(make_unique<Enemy>("Orc", 50));
+        enemies.push_back(make_unique<Boss>("Cursed King"));
+
+        for (auto& enemy : enemies) {
+            cout << "A new enemy approaches: " << enemy->getName() << "!\n";
+
+            // Show enemy ASCII art
+            if (enemy->getName() == "Goblin") displayGoblinArt();
+            else if (enemy->getName() == "Orc") displayOrcArt();
+            else if (enemy->getName() == "Cursed King") displayCursedKingArt();
+
+            bool won = fightEnemy(*enemy);
+            if (!won) {
+                cout << RED << "You were defeated before completing the story.\n" << RESET;
+                return;
+            }
+        }
+
+        cout << GREEN << "Congratulations! You saved the kingdom!\n" << RESET;
+        displayWinArt(); // Only shown after defeating all 3
+    }
+
+
+    void startSandboxMode() {
+        cout << "\n--- Sandbox Mode ---\n";
+        // Mystic Sword 
+        inventory.addItem(Item("Mystic Sword"));
+        cout << CYAN << R"(
+     /\
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+    ||||
+   /____\
+   \====/
+    )" << RESET << "A gleaming Mystic Sword added to your inventory!\n";
+
+        //Healing potion
+        inventory.addItem(Item("Healing Potion"));
+        cout << GREEN << R"(
+     ____
+    |    |
+    |~~~~|
+    |    |
+    |____|
+    /____\
+   (______)
+)" << RESET << "A glowing Healing Potion added to your inventory!\n";
+
+        inventory.showItems();
+
+        cout << CYAN << "\nWould you like to see some helpful hints? (y/n): " << RESET;
+        char showHintChoice;
+        cin >> showHintChoice;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');  
+
+        if (showHintChoice == 'y' || showHintChoice == 'Y') {
+            showSandboxHints();
+        }
+
+
+    }
+
+    void showSandboxHints() {
+        cout << MAGENTA << "\n-- Sandbox Mode Hints --\n" << RESET;
+
+        displayMysticSwordArt();
+        cout << CYAN << "Tip 1: Use the Mystic Sword to deal extra damage!\n" << RESET;
+
+        displayHealingPotionArt();
+        cout << YELLOW << "Tip 2: Healing Potion restores your health during battles.\n" << RESET;
+
+        displayArmorArt();
+        cout << GREEN << "Tip 3: Combine armor pieces to maximize your defense!\n" << RESET;
+
+        displayExperimentArt();
+        cout << MAGENTA << "Tip 4: Experiment with different attack strengths for fun!\n" << RESET;
+
+        cout << CYAN << "Press Enter to continue..." << RESET;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Pause for user to read
+    }
+
+
+
+    bool fightEnemy(Enemy& enemy) {
+        cout << MAGENTA << "\nPrepare to fight: " << enemy.getName() << "!\n" << RESET;
+
+        int tries = 0;
+        int totalHealing = 0;
+        bool hasHelmet = false;
+        bool hasJacket = false;
+
+        while (tries < 2) {
+            int totalAttack = 0;
+            totalHealing = 0;
+            hasHelmet = false;
+            hasJacket = false;
+
+            cout << CYAN << "You have 3 turns per try. On each turn, choose to Attack or Defend.\n" << RESET;
+
+            for (int turn = 1; turn <= 3; ++turn) {
+                cout << CYAN << "\nTurn " << turn << ": Choose action:\n1. Attack\n2. Defend\nChoice: " << RESET;
+                int action;
+                cin >> action;
+
+                if (action == 1) {
+                    // Attack
+                    displayAttackMessage("You", enemy.getName());
+                    if (enemy.getName() == "Goblin") displayGoblinArt();
+                    else if (enemy.getName() == "Orc") displayOrcArt();
+                    else if (enemy.getName() == "Cursed King") displayCursedKingArt();
+
+                    int attack;
+                    cout << CYAN << "Enter attack strength (10 to 50): " << RESET;
+                    while (true) {
+                        cin >> attack;
+                        if (attack >= 10 && attack <= 50)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                            cout << RED << "Invalid input! Enter a value between 10 and 50: " << RESET;
+                        }
+                    }
+                    totalAttack += attack;
+
+                    cout << GREEN << "You dealt " << attack << " damage to " << enemy.getName() << "!\n" << RESET;
+
+
+                }
+                else if (action == 2) {
+                    // Defend - Enemy attacks you
+                    cout << RED << "\nEnemy attacks!\n" << RESET;
+                    if (enemy.getName() == "Goblin") displayGoblinArt();
+                    else if (enemy.getName() == "Orc") displayOrcArt();
+                    else if (enemy.getName() == "Cursed King") displayCursedKingArt();
+
+                    cout << CYAN << "Choose your defense:\n1. Use Healing\n2. Use Armor\nChoice: " << RESET;
+                    int defendChoice;
+                    cin >> defendChoice;
+
+                    if (defendChoice == 1) {
+                        int healAmount;
+                        cout << CYAN << "Enter heal amount (max 50): " << RESET;
+                        while (true) 
+                        {
+                            cin >> healAmount;
+          
+                            if (cin.fail())
+                            {
+                                cin.clear();
+                                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                                cout << RED << "Invalid amount! Enter 0 to 50: " << RESET;
+
+                            }
+                            else if (healAmount >= 0 && healAmount <= 50) {
+                                break;
+                            }
+                            else
+                            {
+                                cin.clear();
+                                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+          
+                                cout << RED << "Invalid amount! Enter 0 to 50: " << RESET;
+               
+                            }
+                            
+                        }
+                        totalHealing += healAmount;
+                        cout << GREEN << "You healed " << healAmount << " health points.\n" << RESET;
+                        continue;
+
+                    }
+                    else if (defendChoice == 2) {
+                        cout << CYAN << "Choose armor to wear:\n1. Helmet\n2. Repellent Jacket\n3. Both\nChoice: " << RESET;
+                        int armorChoice;
+                        cin >> armorChoice;
+
+                        if (armorChoice == 1) {
+                            hasHelmet = true;
+                            cout << YELLOW << "You are wearing Helmet only.\n" << RESET;
+                        }
+                        else if (armorChoice == 2) {
+                            hasJacket = true;
+                            cout << YELLOW << "You are wearing Repellent Jacket only.\n" << RESET;
+                        }
+                        else if (armorChoice == 3) {
+                            hasHelmet = true;
+                            hasJacket = true;
+                            cout << GREEN << "You are wearing both Helmet and Repellent Jacket.\n" << RESET;
+                        }
+                        else {
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                            cout << RED << "Invalid armor choice! You get hit without protection!\n" << RESET;
+                        }
+                    }
+                    else {
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        cout << RED << "Invalid defense choice! Enemy hits you hard!\n" << RESET;
+
+                    }
+                }
+                else {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                 
+                    cout << RED << "Invalid action, you lose the turn!\n" << RESET;
+                }
+            }
+
+            cout << CYAN << "\nTotal attack power this try: " << totalAttack << "\n" << RESET;
+
+            // Check win/lose conditions
+            if (totalAttack >= 90) {
+                if (hasHelmet && hasJacket) {
+                    cout << GREEN << "You defeated the " << enemy.getName() << " AND your armor protected you perfectly! You win!\n" << RESET;
+                    return true;
+                }
+                else if (hasHelmet || hasJacket) {
+                    cout << RED << "You attacked enough but your armor was incomplete. You died anyway!\n" << RESET;
+                    return false;
+                }
+                else {
+                    cout << GREEN << "You defeated the " << enemy.getName() << " without armor! Good job!\n" << RESET;
+                    return true;
+                }
+            }
+            else {
+                // Not enough attack power
+                if (totalHealing < 50) {
+                    cout << RED << "You did not heal enough (" << totalHealing << "/50). The enemy overwhelms you. You lose!\n" << RESET;
+                    return false;
+                }
+                else {
+                    cout << YELLOW << "You didn't attack enough, but you healed well enough.\nTry again!\n" << RESET;
+                    tries++;
+                    if (tries >= 2) {
+                        cout << RED << "No retries left. The enemy wins!\n" << RESET;
+                        return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+    int getValidatedChoice(int min, int max) {
+        int choice;
+        while (true) {
+            cin >> choice;
+            if (cin.fail() || choice < min || choice > max) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << RED << "Invalid input! Please enter a number between " << min << " and " << max << ": " << RESET;
+            }
+            else {
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                return choice;
+            }
+        }
+    }
+};
+
+int main() {
+    User user;
+    displayTitleArt();
+
+    while (true) {
+        cout << "***************\n";
+        cout << MAGENTA << "1. Login\n2. Sign Up\n3. Exit\nChoice:\n" << RESET;
+        cout << "***************";
+
+        int option;
+        cin >> option;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << RED << "Invalid input! Please enter a number.\n" << RESET;
+            continue;
+        }
+
+        bool success = false;
+
+        if (option == 1) {
+            success = user.login();
+        }
+        else if (option == 2) {
+            success = user.signup();
+        }
+        else if (option == 3) {
+            cout << GREEN << "Exiting the game....\n" << RESET;
+            displayGameOverArt();
+            break;
+        }
+        else {
+            cout << RED << "Invalid option!\n" << RESET;
+            continue;
+        }
+
+        if (success) {
+            Player player(user.getUsername());
+            GameManager game(&player);
+
+            while (true) {
+                cout << "*******************\n";
+                cout << "1. Rulebook \n2. Sandbox Mode\n3. Story Mode\n4. Logout\nChoice: ";
+                cout << "*******************";
+
+                int mode = game.getValidatedChoice(1, 4);
+
+                if (mode == 1) {
+                    displayRulebook();
+                }
+                else if (mode == 2) {
+                    game.startSandboxMode();
+                }
+                else if (mode == 3) {
+                    game.startStoryMode();
+                }
+                else if (mode == 4) {
+                    cout << GREEN << "Logging out...\n" << RESET;
+                    break;
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
